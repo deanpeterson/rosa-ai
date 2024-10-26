@@ -1,6 +1,14 @@
-# demo-project
+# AI Odyssey 2025 demo-project
+<div align="center">
+<img src="./VirtualAIOdysseyLogo.png" width="150" height="150">
+</div>
+<br/>
 
+<b>`TODO` - COMPLETE SLIDES</b>
+<br/><b>[AI Odyssey Demo Template](https://docs.google.com/presentation/d/1hNml-zEJ53uW1xOFJHf4zDsSAr4EoOBY0MFTheHTV5I/edit?usp=sharing)</b>
 
+## Demo Deployment Instructions
+<b>`TODO` ADD INSTRUCTIONS IN THIS README TO SUCCESSFULLY DEPLOY DEMO APPLICATION TO [RED HAT DEMO PLATFORM](https://demo.redhat.com/).</b>
 
 ## Getting started
 
