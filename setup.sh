@@ -8,12 +8,13 @@ if [[ -z "$step" || "$step" == "1" ]]; then
   __ "Step 1 - Connect to Bastion" 3
   __ "Collecting initial provisioning data for automation:" 4
   _? "What is the bastion ssh host for your demo environment" BASTION $BASTION
+  export $BASTION
   __ "Setup bastion connection and continue there" 4
   __ "Provide bastion ssh password to copy keys when prompted" 5
   ssh-copy-id -o StrictHostKeyChecking=accept-new rosa@$BASTION
   __ "Connect to bastion via ssh using -A flag" 4
   # Checkout dependencies
-  ssh -A rosa@$BASTION "git clone ssh://git@gitlab.consulting.redhat.com:2222/ai-odyssey-2025/assist4real/demo-project.git ai-starter"
+  ssh -A rosa@$BASTION 'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" git clone ssh://git@gitlab.consulting.redhat.com:2222/ai-odyssey-2025/assist4real/demo-project.git ai-starter'
   # rsync -va ./ rosa@$BASTION:ai-starter/
   ssh -A rosa@$BASTION "cd ai-starter && pwd && ./setup.sh 2"
   exit 0
