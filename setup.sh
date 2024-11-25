@@ -13,8 +13,8 @@ if [[ -z "$step" || "$step" == "1" ]]; then
   ssh-copy-id rosa@$BASTION
   __ "Connect to bastion via ssh using -A flag" 4
   # Checkout dependencies
-  # ssh -A rosa@$BASTION "git clone ssh://git@gitlab.consulting.redhat.com:2222/ai-odyssey-2025/assist4real/demo-project.git ai-starter"
-  rsync -va ./ rosa@$BASTION:ai-starter/
+  ssh -A rosa@$BASTION "git clone ssh://git@gitlab.consulting.redhat.com:2222/ai-odyssey-2025/assist4real/demo-project.git ai-starter"
+  # rsync -va ./ rosa@$BASTION:ai-starter/
   ssh -A rosa@$BASTION "cd ai-starter && pwd && ./setup.sh 2"
   exit 0
 fi
