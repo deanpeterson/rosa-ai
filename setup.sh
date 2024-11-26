@@ -89,13 +89,15 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   __ "Verify dependencies are installed" 5
   oo 9 "oc get DSCInitialization,FeatureTracker -n redhat-ods-operator | egrep -i 'DSCInitialization|FeatureTracker' | grep -iv Progressing | wc -l"
   cmd oc get DSCInitialization,FeatureTracker -n redhat-ods-operator
-  __ "Install following operator with defaults using UI" 3
   __ "OpenShift Pipelines" 4
-  ___ "Continue"
+  cmd "oc apply -f configs/pipelines-subscription.yaml"
+  oo 1 "oc get ClusterServiceVersion -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators -n openshift-operators | grep Succeeded | wc -l"
   __ "Red Hat OpenShift Dev Spaces" 4
-  ___ "Continue"
-  __ "Install operator, create CheCluster" 4
-  ___ "Continue"
+  cmd "oc apply -f configs/dev-spaces-subscription.yaml"
+  oo 1 "oc get ClusterServiceVersion -l operators.coreos.com/devworkspace-operator.openshift-operators -n openshift-operators | grep Succeeded | wc -l"
+  __ "Create CheCluster" 4
+  cmd "oc apply -f configs/dev-spaces-instance.yaml"
+  oo 1 "oc get CheCluster devspaces -n openshift-devspaces -o name --no-headers=true | wc -l"
   __ "Patch CheCluster to never idle" 4
   patch='{"spec": {"devEnvironments": {"secondsOfInactivityBeforeIdling": -1,"secondsOfRunBeforeIdling": -1}}}'
   cmd "oc patch checluster devspaces -n openshift-operators --type='merge' -p='$patch'"

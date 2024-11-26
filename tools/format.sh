@@ -28,7 +28,7 @@ function oo {
   # oo 3 "ls -1 | wc -c"
   local count=-1
   local readyCount=$1;
-  echo -n "$readyCount <= "
+  __ "$readyCount <= " 5
   trap ctrl_c INT
   export trappedCtrlC=0
   start_time="$(date -u +%s)"
