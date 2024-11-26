@@ -1,3 +1,4 @@
+#!/bin/bash
 # Output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -19,19 +20,32 @@ else
 fi
 }
 
+function ctrl_c(){
+  export trappedCtrlC=1
+}
+
 function oo {
   # oo 3 "ls -1 | wc -c"
   local count=-1
   local readyCount=$1;
   echo -n "$readyCount <= "
+  trap ctrl_c INT
+  export trappedCtrlC=0
+  start_time="$(date -u +%s)"
   while true; do 
     countNew=$(bash -c "${@:2}" 2>&1)
     if [[ ! "$count" == "$countNew" ]]; then 
       count="$countNew"
       echo -n "$count "
     fi 
+    if [ $trappedCtrlC -ge 1 ]; then 
+      unset trappedCtrlC
+      count=$readyCount
+      ___ "As you wish!!"
+    fi 
     if [ "$count" -ge "$readyCount" ]; then 
-      echo
+      elapsed_total="$(date -d@$(($(date -u +%s)-$start_time)) -u +%M:%Ss)"
+      __ "Waited: $elapsed_total" 5
       break 
     fi; 
     sleep 2 

@@ -58,7 +58,7 @@ fi
 if [[ -n "$step" && "$step" == "5" ]]; then 
   __ "Step 5 - Finish Openshift Setup" 3
   __ "Wait for machinepool to be ready" 4
-  cmd "oc wait --for=jsonpath='{.status.phase}'=Active node -l nodes=ai"
+  cmd "oc wait --for=jsonpath='{.status.phase}'=Active node -l nodes=ai --timeout=60m"
   __ "Switch to AI machine pool" 4
   cmd "rosa update machinepool -c rosa-$GUID --replicas 0 workers"
   __ "Verify machine pools" 4
