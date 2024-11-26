@@ -58,7 +58,9 @@ fi
 if [[ -n "$step" && "$step" == "5" ]]; then 
   __ "Step 5 - Finish Openshift Setup" 3
   __ "Wait for machinepool to be ready" 4
-  cmd "oc wait nodes --for=condition=Ready --timeout=300s -l nodes=ai"
+  export query='.[] | select(.id=="ai-worker") .status.current_replicas'
+  oo $(rosa list machinepools -c rosa-$GUID -o json | jq '.[] | select(.id=="ai-worker") .autoscaling.min_replica') "rosa list machinepools -c rosa-$GUID -o json | jq '$query'"
+  unset query
   __ "Switch to AI machine pool" 4
   cmd "rosa update machinepool -c rosa-$GUID --replicas 0 workers"
   __ "Verify machine pools" 4
@@ -91,9 +93,11 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   cmd oc get DSCInitialization,FeatureTracker -n redhat-ods-operator
   __ "OpenShift Pipelines" 4
   cmd "oc apply -f configs/pipelines-subscription.yaml"
+  sleep 5
   oo 1 "oc get ClusterServiceVersion -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators -n openshift-operators | grep Succeeded | wc -l"
   __ "Red Hat OpenShift Dev Spaces" 4
   cmd "oc apply -f configs/dev-spaces-subscription.yaml"
+  sleep 5
   oo 1 "oc get ClusterServiceVersion -l operators.coreos.com/devworkspace-operator.openshift-operators -n openshift-operators | grep Succeeded | wc -l"
   __ "Create CheCluster" 4
   cmd "oc apply -f configs/dev-spaces-instance.yaml"
