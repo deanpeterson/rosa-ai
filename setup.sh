@@ -104,7 +104,7 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   oo 1 "oc get CheCluster devspaces -n openshift-devspaces -o name --no-headers=true | wc -l"
   __ "Patch CheCluster to never idle" 4
   patch='{"spec": {"devEnvironments": {"secondsOfInactivityBeforeIdling": -1,"secondsOfRunBeforeIdling": -1}}}'
-  cmd "oc patch checluster devspaces -n openshift-operators --type='merge' -p='$patch'"
+  cmd "oc patch checluster devspaces -n openshift-devspaces --type='merge' -p='$patch'"
   step=7
 fi
 # Have a default storage class
