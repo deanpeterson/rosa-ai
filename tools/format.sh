@@ -28,7 +28,7 @@ function oo {
   # oo 3 "ls -1 | wc -c"
   local count=-1
   local readyCount=$1;
-  __ "$readyCount <= " prompt
+  __ "$readyCount <= " sameline
   trap ctrl_c INT
   export trappedCtrlC=0
   start_time="$(date -u +%s)"
@@ -92,8 +92,8 @@ function __ {
   6)
     echo " * $msg"
     ;;
-  prompt)
-    echo -n " * $msg"
+  sameline)
+    echo -n " > $msg"
     ;;
   *)
     echo "$msg"
@@ -127,7 +127,7 @@ function _? {
      input="$ask"
    else
      # Prompt the user with the default value
-     __ "$msg [${def}]: " prompt
+     __ "$msg [${def}]: " sameline
      read input
      # Use the default if no input is provided
      input="${input:-$def}"
