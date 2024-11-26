@@ -98,6 +98,7 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   oo 1 "oc get ClusterServiceVersion -l operators.coreos.com/devworkspace-operator.openshift-operators -n openshift-operators 2>/dev/null | grep Succeeded | wc -l"
   __ "Wait for CheCluster CRD tp be present" 5
   oo 1 "oc get customresourcedefinition checlusters.org.eclipse.che --no-headers=true 2>/dev/null | wc -l"
+  oo 1 "oc get service devspaces-operator-service -n openshift-operators --no-headers=true 2>/dev/null | wc -l"
   __ "Create CheCluster" 4
   cmd "oc apply -f configs/dev-spaces-instance.yaml"
   oo 1 "oc get CheCluster devspaces -n openshift-devspaces -o name --no-headers=true | wc -l"
