@@ -87,8 +87,8 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   oo 3 'oc get projects | grep -E "redhat-ods|rhods" | wc -l'
   cmd oc create -f configs/rhoai-operator-dsc.yaml
   __ "Verify dependencies are installed" 5
+  oo 9 "oc get DSCInitialization,FeatureTracker -n redhat-ods-operator | egrep -i 'DSCInitialization|FeatureTracker' | grep -iv Progressing | wc -l"
   cmd oc get DSCInitialization,FeatureTracker -n redhat-ods-operator
-  oo 4 "oc get DSCInitialization,FeatureTracker -n redhat-ods-operator | egrep -i 'DSCInitialization|FeatureTracker' | grep -iv Progressing | wc -l"
   __ "Install following operator with defaults using UI" 3
   __ "OpenShift Pipelines" 4
   ___ "Continue"

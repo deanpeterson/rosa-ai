@@ -6,7 +6,7 @@ username=(daniel dean anthony rh1 rh2 rh3 rh4 rh5 rh6 rh7 actor akita alligator 
 # echo "$WORDS" | tr ' ' '\n' | awk '{ print length, $0 }' | sort -n | cut -d" " -f2 | uniq | head -n ${numberTeams} | sort | xargs
 
 # test our data
-for i in {0..${numberTeams}}; do
+for i in $(seq 0 $numberTeams); do
   team=${teamname[$i]}
   printf "%-15s" "$team"
   users=$(for u in {0..9}; do index=$((u + i * 10)); printf "%4d: %-10s " "$index" "${username[$index]}"; done)
@@ -21,12 +21,12 @@ rosa delete idp --cluster=rosa-$GUID $provider -y
 oc get identity -o jsonpath='{range .items[?(@.providerName=="ai-hacker")]}{.metadata.name}{"\n"}{end}' | xargs -i oc delete identity {}
 oc get users -o name | grep -v admin | xargs -i oc delete {}
 oc delete project -l app.kubernetes.io/part-of=che.eclipse.org
-for i in {0..${numberTeams}}; do
+for i in $(seq 0 $numberTeams); do
   team=${teamname[$i]}
   oc delete group $team
   oc delete project $team
 done
-for i in {0..${numberTeams}}; do
+for i in $(seq 0 $numberTeams); do
   team=${teamname[$i]}
   login="scratch/$team.users.csv"; 
   echo $console > $login;
@@ -45,7 +45,7 @@ for i in {0..${numberTeams}}; do
   done
 done
 rosa create idp --cluster=rosa-$GUID --name $provider --type htpasswd --from-file $auth
-for i in {0..${numberTeams}}; do
+for i in $(seq 0 $numberTeams); do
   team=${teamname[$i]}
   login="scratch/$team.users.csv"; 
   echo -n 'MinIO-Root,' >> $login;
