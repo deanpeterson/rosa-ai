@@ -23,12 +23,12 @@ clusterInfo=$(rosa list clusters -o json)
 if [[ -n "$step" && "$step" == "2" ]]; then 
   __ "Step 2 - Setup ROSA" 3
   API_URL=$(echo "$clusterInfo" | jq -r '.[].api.url')
+  __ "Create ROSA admin account - should exist" 4
+  cmd "rosa create admin --cluster rosa-$GUID"
   __ "Collecting additional provisioning data for automation:" 4
   _? "What is the rosa admin password" API_PWD
   _? "What is the rosa api url" API_URL "" $API_URL
   cmd oc login -u cluster-admin -p "$API_PWD" "$API_URL"
-  __ "Create ROSA admin account - should exist" 4
-  cmd "rosa create admin --cluster rosa-$GUID"
   __ "Setup scratch folder for artifacts" 4
   cmd "mkdir -p scratch/"
   step=3
