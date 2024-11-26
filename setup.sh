@@ -8,7 +8,6 @@ if [[ -z "$step" || "$step" == "1" ]]; then
   __ "Step 1 - Connect to Bastion" 3
   __ "Collecting initial provisioning data for automation:" 4
   _? "What is the bastion ssh host for your demo environment" BASTION $BASTION
-  export $BASTION
   __ "Setup bastion connection and continue there" 4
   __ "Provide bastion ssh password to copy keys when prompted" 5
   ssh-copy-id -o StrictHostKeyChecking=accept-new rosa@$BASTION
