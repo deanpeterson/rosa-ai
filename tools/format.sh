@@ -45,7 +45,7 @@ function oo {
     fi 
     if [ "$count" -ge "$readyCount" ]; then 
       elapsed_total="$(date -d@$(($(date -u +%s)-$start_time)) -u +%M:%Ss)"
-      __ "Waited: $elapsed_total" 6
+      __ "Waited: $elapsed_total" 5
       break 
     fi; 
     sleep 2 
