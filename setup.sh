@@ -39,7 +39,7 @@ if [[ -n "$step" && "$step" == "3" ]]; then
   _? "What is the number of minimum replicas" minReplicas 1
   _? "What is the number of maximum replicas" maxReplicas 10
   __ "Add $instanceType machine pool with $minReplicas <= n <= $maxReplicas nodes" 4
-  cmd "rosa create machinepool -c rosa-$GUID --name=customNodePool --min-replicas=$minReplicas --max-replicas=$maxReplicas --instance-type=$instanceType --enable-autoscaling --labels nodes=ai"
+  cmd "rosa create machinepool -c rosa-$GUID --name=ai-worker --min-replicas=$minReplicas --max-replicas=$maxReplicas --instance-type=$instanceType --enable-autoscaling --labels nodes=ai"
   step=4
 fi
 if [[ -n "$step" && "$step" == "4" ]]; then 
