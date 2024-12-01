@@ -25,7 +25,7 @@
    7. ![alt text](img/image15.png "keycloak helm install") 
    8. Use pgAdmin-4 to restore the keycloak.backup file in the gitops/rhbk folder  
    9. oc port-forward svc/keycloak-postgresql 5432  
-   10. ![][image2]  
+   10. ![alt text](img/image6.png "port forward") 
    11. Add the keycloak postgresql connection \- **You must use the postgres admin user**  
    12. ![][image3]  
    13. You will find the postgres admin password in the values.yaml file in /gitops/rhbk/keycloak-postgresql-chart/values.yaml  
