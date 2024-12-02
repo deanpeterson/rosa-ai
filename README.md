@@ -27,46 +27,46 @@
    9. oc port-forward svc/keycloak-postgresql 5432  
    10. ![alt text](img/image6.png "port forward") 
    11. Add the keycloak postgresql connection \- **You must use the postgres admin user**  
-   12. ![][image3]  
+   12. ![alt text](img/image21.png "register server in pgAdmin")  
    13. You will find the postgres admin password in the values.yaml file in /gitops/rhbk/keycloak-postgresql-chart/values.yaml  
-   14. ![][image4]  
-   15. ![][image5]  
+   14. ![alt text](img/image28.png "postgres admin password")   
+   15.![alt text](img/image7.png "connection information")  
    16. Once connected, right click on the “keycloak” database and select “restore”  
-   17. ![][image6]  
+   17. ![alt text](img/image29.png "restore database")  
    18. Select the keycloak.backup file from gitops/rhbk/keycloak.backup  
-   19. ![][image7]  
+   19. ![alt text](img/image24.png "select keycloak.backup")   
    20. Click “Restore”  
    21. You should see a green “Finished”  
-   22. ![][image8]  
+   22. ![alt text](img/image11.png "green complete")  
    23. cd to gitops/rhbk/keycloak-chart  
    24. Run **helm install keycloak .**  
-   25. ![][image9]  
+   25. ![alt text](img/image19.png "port forward")  
    26. Because you restored an existing keycloak database, the admin password to login to the Admin UI is mentioned in the pre-requisite.txt file. You won’t be able to use the auto generated password in OpenShift secrets. The password in pre-requisites.txt is: **5cedc6c2e7474ea8b87b4cf0bcdd7812**  
    27. You can log into the UI from the route created to verify the client from the restored database exists:  
-   28. ![][image10]  
-   29. ![][image11]  
-   30. ![][image12]  
+   28. ![alt text](img/image14.png "keycloak admin login") 
+   29. ![alt text](img/image3.png "review realms")  
+   30. ![alt text](img/image8.png "helm install strapi .")  
    31. If the “RAG AI Starter” Realm exists, you have installed Keycloak successfully  
 3.  **Install Strapi Headless CMS**  
    1. cd gitops/strapi  
    2. Just like with the keycloak values.yaml, you will need to modify the cluster name and domain to match your cluster’s values. Leave everything else as is  
    3. Run **helm install strapi .**  
-   4. ![][image13]  
+   4. ![alt text](img/image26.png "port forward")  
    5. We will restore the strapi.backup file the same way we restored the keycloak.backup file now  
    6. oc port-forward svc/strapi-postgresql 5432  
-   7. ![][image14]  
+   7. ![alt text](img/image23.png "register strapi postgresql with pgAdmin")  
    8. Register the server with the username: userVTA and password:Ng1TjS46XVOAVpb4 ![][image15]  
    9. Restore the strapi database from the strapi.backup file  
-   10. ![][image16]  
-   11. ![][image17]  
+   10.![alt text](img/image20.png "restore strapi database")   
+   11. ![alt text](img/image22.png "strapi.backup")  
    12. Now find the strapi BuildConfig inside the OpenShift console  
-   13. ![][image18]  
+   13. ![alt text](img/image4.png "build strapi")   
    14. Run a build from the upper right Actions dropdown  
-   15. ![][image19]  
+   15. ![alt text](img/image16.png "start build") 
    16. Actions → Start build  
    17. Once the build finishes, the deployment of strapi should complete successfully. Wait for the strapi Deployment to indicate it has scaled from 0 to 1  
-   18. ![][image20]  
-   19. ![][image21]  
+   18. ![alt text](img/image27.png "deploy strapi")   
+   19. ![alt text](img/image12.png "port forward")   
    20. You may need to delete the existing Pod created before the image was built to force the image pull and successful deployment  
    21. Click on the strapi route under Networking → Routes  
    22. Add /admin to the url to reach the admin login  
