@@ -10,7 +10,7 @@
 ## Demo Deployment Instructions
 <b>How To Install the AI Starter Kit Once the Cluster with 48GB of VRAM is available</b>
 
-1. **Clone repo**  
+1. **Clone This [Public AI Starter Kit Public Repository](https://github.com/purefield-demo-team/ai-hackathon-starter.git)**  
 2. **Install Red Hat Build of Keycloak**  
    1. cd to gitops/rhbk  
    2. First perform the pre-requisites that are described in the pre-requisites.txt:  
@@ -27,53 +27,53 @@
    9. oc port-forward svc/keycloak-postgresql 5432  
    10. ![alt text](img/image6.png "port forward") 
    11. Add the keycloak postgresql connection \- **You must use the postgres admin user**  
-   12. ![][image3]  
+   12. ![alt text](img/image21.png "register server in pgAdmin")  
    13. You will find the postgres admin password in the values.yaml file in /gitops/rhbk/keycloak-postgresql-chart/values.yaml  
-   14. ![][image4]  
-   15. ![][image5]  
+   14. ![alt text](img/image28.png "postgres admin password")   
+   15.![alt text](img/image7.png "connection information")  
    16. Once connected, right click on the “keycloak” database and select “restore”  
-   17. ![][image6]  
+   17. ![alt text](img/image29.png "restore database")  
    18. Select the keycloak.backup file from gitops/rhbk/keycloak.backup  
-   19. ![][image7]  
+   19. ![alt text](img/image24.png "select keycloak.backup")   
    20. Click “Restore”  
    21. You should see a green “Finished”  
-   22. ![][image8]  
+   22. ![alt text](img/image11.png "green complete")  
    23. cd to gitops/rhbk/keycloak-chart  
    24. Run **helm install keycloak .**  
-   25. ![][image9]  
+   25. ![alt text](img/image19.png "port forward")  
    26. Because you restored an existing keycloak database, the admin password to login to the Admin UI is mentioned in the pre-requisite.txt file. You won’t be able to use the auto generated password in OpenShift secrets. The password in pre-requisites.txt is: **5cedc6c2e7474ea8b87b4cf0bcdd7812**  
    27. You can log into the UI from the route created to verify the client from the restored database exists:  
-   28. ![][image10]  
-   29. ![][image11]  
-   30. ![][image12]  
+   28. ![alt text](img/image14.png "keycloak admin login") 
+   29. ![alt text](img/image3.png "review realms")  
+   30. ![alt text](img/image8.png "helm install strapi .")  
    31. If the “RAG AI Starter” Realm exists, you have installed Keycloak successfully  
 3.  **Install Strapi Headless CMS**  
    1. cd gitops/strapi  
    2. Just like with the keycloak values.yaml, you will need to modify the cluster name and domain to match your cluster’s values. Leave everything else as is  
    3. Run **helm install strapi .**  
-   4. ![][image13]  
+   4. ![alt text](img/image26.png "port forward")  
    5. We will restore the strapi.backup file the same way we restored the keycloak.backup file now  
    6. oc port-forward svc/strapi-postgresql 5432  
-   7. ![][image14]  
+   7. ![alt text](img/image23.png "register strapi postgresql with pgAdmin")  
    8. Register the server with the username: userVTA and password:Ng1TjS46XVOAVpb4 ![][image15]  
    9. Restore the strapi database from the strapi.backup file  
-   10. ![][image16]  
-   11. ![][image17]  
+   10.![alt text](img/image20.png "restore strapi database")   
+   11. ![alt text](img/image22.png "strapi.backup")  
    12. Now find the strapi BuildConfig inside the OpenShift console  
-   13. ![][image18]  
+   13. ![alt text](img/image4.png "build strapi")   
    14. Run a build from the upper right Actions dropdown  
-   15. ![][image19]  
+   15. ![alt text](img/image16.png "start build") 
    16. Actions → Start build  
    17. Once the build finishes, the deployment of strapi should complete successfully. Wait for the strapi Deployment to indicate it has scaled from 0 to 1  
-   18. ![][image20]  
-   19. ![][image21]  
+   18. ![alt text](img/image27.png "deploy strapi")   
+   19. ![alt text](img/image12.png "finished deployment")   
    20. You may need to delete the existing Pod created before the image was built to force the image pull and successful deployment  
    21. Click on the strapi route under Networking → Routes  
    22. Add /admin to the url to reach the admin login  
-   23. ![][image22]  
+   23.![alt text](img/image25.png "strapi login")  
    24. Login with Email: [admin@example.org](mailto:admin@example.org) Password: Pass1234 (you can change this upon login)  
    25. Once logged into strapi, find the keycloak provider under the settings  
-   26. ![][image23]  
+   26.![alt text](img/image9.png "update image") 
    27. Click the edit icon next to the keycloak provider  
    28. In the “Host URI (Subdomain) field, replace the “keycloak-raft-infra.apps.salamander.aimlworkbench.com” part before “/realms/fihr-rag-llm” with the route of your keycloak instance. KEEP THE /realms/fihr-rag-llm part  
    29. Later, when we have the react-front end running, we will need to modify the “Redirect-URL to your front end app” field. But we will leave that to a later step for now  
@@ -83,21 +83,21 @@
    3. Run **helm install redis-search .**  
 5. **Install the vector-ask Quarkus back end application components. There are three helm charts. One for the Quarkus back end itself,  another for the sample database used to showcase how natural language for sql can be generated, and another to deploy a model with the vLLM serving runtime. The primary job of the Quarkus application however is to fetch notes created by the user through the React front end application (we will deploy shortly) and to send those notes as context to a local model for generating helpful insights.**  
    1. First, clone the [defog/llama-3-sqlcoder-8b](https://huggingface.co/defog/llama-3-sqlcoder-8b) repository then upload it to an AWS S3 bucket under the path models/llama-3-sqlcoder-8b  
-   2. ![][image24]  
+   2. ![alt text](img/image17.png "s3 model storage") 
    3. Create a DataConnection in OpenShift AI under the DataScience project with the same name as your namespace. This DataConnection is what your llm model inference engine can use to pull the model from the S3 bucket  
-   4. ![][image25]  
-   5. ![][image26]  
+   4. ![alt text](img/image1.png "Data Connection")   
+   5. ![alt text](img/image5.png "Data Connection Form")  
    6. You will need a cluster with 48gb of vram on one node for the next step to be successful  
    7. Run **helm install vector-ask-model .**  
-   8. ![][image27]  
+   8. ![alt text](img/image10.png "install vector ask model")  
    9. Once the model is deployed copy its endpoint from the OpenShift AI console  
-   10. ![][image28]  
+   10. ![alt text](img/image18.png "model endpoint")  
    11. Second, deploy the nl2sql-sample-db  
    12. cd gitops/vector-ask/nl2sql-sample-db  
    13. Before running the helm install command, there are a number of values that need to be updated in the values.yaml file  
        1. Replace the strapi → host with the route to your strapi instance (keep the :1337 port at the end)  
        2. You will also need to create a new strapi api token and add that in place of the xxxxxx for the strapi → token value  
-       3. ![][image29]  
+       3. ![alt text](img/image2.png "strapi api token")   
        4. 
 
    
