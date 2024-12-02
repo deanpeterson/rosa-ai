@@ -10,7 +10,7 @@
 ## Demo Deployment Instructions
 <b>How To Install the AI Starter Kit Once the Cluster with 48GB of VRAM is available</b>
 
-1. **Clone repo**  
+1. **Clone This [Public AI Starter Kit Public Repository](https://github.com/purefield-demo-team/ai-hackathon-starter.git)**  
 2. **Install Red Hat Build of Keycloak**  
    1. cd to gitops/rhbk  
    2. First perform the pre-requisites that are described in the pre-requisites.txt:  
