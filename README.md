@@ -66,14 +66,14 @@
    16. Actions → Start build  
    17. Once the build finishes, the deployment of strapi should complete successfully. Wait for the strapi Deployment to indicate it has scaled from 0 to 1  
    18. ![alt text](img/image27.png "deploy strapi")   
-   19. ![alt text](img/image12.png "port forward")   
+   19. ![alt text](img/image12.png "finished deployment")   
    20. You may need to delete the existing Pod created before the image was built to force the image pull and successful deployment  
    21. Click on the strapi route under Networking → Routes  
    22. Add /admin to the url to reach the admin login  
-   23. ![][image22]  
+   23.![alt text](img/image25.png "strapi login")  
    24. Login with Email: [admin@example.org](mailto:admin@example.org) Password: Pass1234 (you can change this upon login)  
    25. Once logged into strapi, find the keycloak provider under the settings  
-   26. ![][image23]  
+   26.![alt text](img/image9.png "update image") 
    27. Click the edit icon next to the keycloak provider  
    28. In the “Host URI (Subdomain) field, replace the “keycloak-raft-infra.apps.salamander.aimlworkbench.com” part before “/realms/fihr-rag-llm” with the route of your keycloak instance. KEEP THE /realms/fihr-rag-llm part  
    29. Later, when we have the react-front end running, we will need to modify the “Redirect-URL to your front end app” field. But we will leave that to a later step for now  
@@ -83,21 +83,21 @@
    3. Run **helm install redis-search .**  
 5. **Install the vector-ask Quarkus back end application components. There are three helm charts. One for the Quarkus back end itself,  another for the sample database used to showcase how natural language for sql can be generated, and another to deploy a model with the vLLM serving runtime. The primary job of the Quarkus application however is to fetch notes created by the user through the React front end application (we will deploy shortly) and to send those notes as context to a local model for generating helpful insights.**  
    1. First, clone the [defog/llama-3-sqlcoder-8b](https://huggingface.co/defog/llama-3-sqlcoder-8b) repository then upload it to an AWS S3 bucket under the path models/llama-3-sqlcoder-8b  
-   2. ![][image24]  
+   2. ![alt text](img/image17.png "s3 model storage") 
    3. Create a DataConnection in OpenShift AI under the DataScience project with the same name as your namespace. This DataConnection is what your llm model inference engine can use to pull the model from the S3 bucket  
-   4. ![][image25]  
-   5. ![][image26]  
+   4. ![alt text](img/image1.png "Data Connection")   
+   5. ![alt text](img/image5.png "Data Connection Form")  
    6. You will need a cluster with 48gb of vram on one node for the next step to be successful  
    7. Run **helm install vector-ask-model .**  
-   8. ![][image27]  
+   8. ![alt text](img/image10.png "install vector ask model")  
    9. Once the model is deployed copy its endpoint from the OpenShift AI console  
-   10. ![][image28]  
+   10. ![alt text](img/image18.png "model endpoint")  
    11. Second, deploy the nl2sql-sample-db  
    12. cd gitops/vector-ask/nl2sql-sample-db  
    13. Before running the helm install command, there are a number of values that need to be updated in the values.yaml file  
        1. Replace the strapi → host with the route to your strapi instance (keep the :1337 port at the end)  
        2. You will also need to create a new strapi api token and add that in place of the xxxxxx for the strapi → token value  
-       3. ![][image29]  
+       3. ![alt text](img/image2.png "strapi api token")   
        4. 
 
    
