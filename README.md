@@ -48,35 +48,35 @@
    30. ![alt text](img/image8.png "helm install strapi .")  
    31. If the “RAG AI Starter” Realm exists, you have installed Keycloak successfully  
 3.  **Install Strapi Headless CMS**  
-   1. cd gitops/strapi  
-   2. Just like with the keycloak values.yaml, you will need to modify the cluster name and domain to match your cluster’s values. Leave everything else as is  
-   3. Run **helm install strapi .**  
-   4. ![alt text](img/image26.png "port forward")  
-   5. We will restore the strapi.backup file the same way we restored the keycloak.backup file now  
-   6. oc port-forward svc/strapi-postgresql 5432  
-   7. ![alt text](img/image23.png "register strapi postgresql with pgAdmin")  
-   8. Register the server with the username: userVTA and password:Ng1TjS46XVOAVpb4 ![][image15]  
-   9. Restore the strapi database from the strapi.backup file  
-   10.![alt text](img/image20.png "restore strapi database")   
-   11. ![alt text](img/image22.png "strapi.backup")  
-   12. Now find the strapi BuildConfig inside the OpenShift console  
-   13. ![alt text](img/image4.png "build strapi")   
-   14. Run a build from the upper right Actions dropdown  
-   15. ![alt text](img/image16.png "start build") 
-   16. Actions → Start build  
-   17. Once the build finishes, the deployment of strapi should complete successfully. Wait for the strapi Deployment to indicate it has scaled from 0 to 1  
-   18. ![alt text](img/image27.png "deploy strapi")   
-   19. ![alt text](img/image12.png "finished deployment")   
-   20. You may need to delete the existing Pod created before the image was built to force the image pull and successful deployment  
-   21. Click on the strapi route under Networking → Routes  
-   22. Add /admin to the url to reach the admin login  
-   23.![alt text](img/image25.png "strapi login")  
-   24. Login with Email: [admin@example.org](mailto:admin@example.org) Password: Pass1234 (you can change this upon login)  
-   25. Once logged into strapi, find the keycloak provider under the settings  
-   26.![alt text](img/image9.png "update image") 
-   27. Click the edit icon next to the keycloak provider  
-   28. In the “Host URI (Subdomain) field, replace the “keycloak-raft-infra.apps.salamander.aimlworkbench.com” part before “/realms/fihr-rag-llm” with the route of your keycloak instance. KEEP THE /realms/fihr-rag-llm part  
-   29. Later, when we have the react-front end running, we will need to modify the “Redirect-URL to your front end app” field. But we will leave that to a later step for now  
+      1. cd gitops/strapi  
+      2. Just like with the keycloak values.yaml, you will need to modify the cluster name and domain to match your cluster’s values. Leave everything else as is  
+      3. Run **helm install strapi .**  
+      4. ![alt text](img/image26.png "port forward")  
+      5. We will restore the strapi.backup file the same way we restored the keycloak.backup file now  
+      6. oc port-forward svc/strapi-postgresql 5432  
+      7. ![alt text](img/image23.png "register strapi postgresql with pgAdmin")  
+      8. Register the server with the username: userVTA and password:Ng1TjS46XVOAVpb4 ![][image15]  
+      9. Restore the strapi database from the strapi.backup file  
+      10.![alt text](img/image20.png "restore strapi database")   
+      11. ![alt text](img/image22.png "strapi.backup")  
+      12. Now find the strapi BuildConfig inside the OpenShift console  
+      13. ![alt text](img/image4.png "build strapi")   
+      14. Run a build from the upper right Actions dropdown  
+      15. ![alt text](img/image16.png "start build") 
+      16. Actions → Start build  
+      17. Once the build finishes, the deployment of strapi should complete successfully. Wait for the strapi Deployment to indicate it has scaled from 0 to 1  
+      18. ![alt text](img/image27.png "deploy strapi")   
+      19. ![alt text](img/image12.png "finished deployment")   
+      20. You may need to delete the existing Pod created before the image was built to force the image pull and successful deployment  
+      21. Click on the strapi route under Networking → Routes  
+      22. Add /admin to the url to reach the admin login  
+      23.![alt text](img/image25.png "strapi login")  
+      24. Login with Email: [admin@example.org](mailto:admin@example.org) Password: Pass1234 (you can change this upon login)  
+      25. Once logged into strapi, find the keycloak provider under the settings  
+      26.![alt text](img/image9.png "update image") 
+      27. Click the edit icon next to the keycloak provider  
+      28. In the “Host URI (Subdomain) field, replace the “keycloak-raft-infra.apps.salamander.aimlworkbench.com” part before “/realms/fihr-rag-llm” with the route of your keycloak instance. KEEP THE /realms/fihr-rag-llm part  
+      29. Later, when we have the react-front end running, we will need to modify the “Redirect-URL to your front end app” field. But we will leave that to a later step for now  
 4. **Install the Redis Search Vector Database**  
    1. cd gitops/redis-search  
    2. Once again, in the values.yaml file change the cluster name and domain to match your cluster’s values but leave the other values as is  
