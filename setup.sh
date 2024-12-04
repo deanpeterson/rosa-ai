@@ -111,8 +111,7 @@ fi
 # Have a default storage class
 if [[ -n "$step" && "$step" == "7" ]]; then 
   __ "Set up Teams" 2
-  __ "Step 7" 3
-  __ "Create namespace for each team, setup groups and roles" 3
+  __ "Step 7 - Create namespace for each team, setup groups and roles" 3
   __ "Provision S3 Storage (endpoint requires protocol, valid cert via public url)" 4
   __ "Create groups for each team with 10 users" 5
   __ "Create Data Science Project" 6
