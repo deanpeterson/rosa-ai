@@ -49,26 +49,33 @@ fi
 
 if [[ -n "$step" && "$step" == "3" ]]; then 
   __ "Step 3 - Install Red Hat Keycloak" 2
+
   __ "Create SSL Certificate" 3
   __ "Generate SSL Certificate" 4
-  cmd "openssl req -subj '/CN=keycloak-${NAMESPACE}.${APP_URL}/O=Test Keycloak./C=US' 
-        -newkey rsa:2048 -nodes 
-        -x509 -days 365 
-        -keyout ${SCRATCH_PATH}key.pem
-        -out    ${SCRATCH_PATH}certificate.pem"
+  cmd "openssl req -subj '/CN=keycloak-${NAMESPACE}.${APP_URL}/O=Test Keycloak./C=US' -newkey rsa:2048 -nodes -x509 -days 365 -keyout ${SCRATCH_PATH}key.pem -out    ${SCRATCH_PATH}certificate.pem"
+
   __ "Copy SSL Certificate into secret" 4
   cmd "oc create secret -n $NAMESPACE tls keycloak-tls-secret --cert ${SCRATCH_PATH}certificate.pem --key ${SCRATCH_PATH}key.pem"
+
   __ "Configure postgresql variables" 3
   postgresqlConfig=${GITOPS_PATH}rhbk/keycloak-postgresql-chart/values.yaml
   baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
   cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $postgresqlConfig"
   cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $postgresqlConfig"
+
   __ "Run helm charts for postgresql" 3
   cmd "helm install keycloak-postgresql ${GITOPS_PATH}rhbk/keycloak-postgresql-chart/"
+
   __ "Use pgAdmin-4 to restore the keycloak.backup file in the gitops/rhbk folder" 3
     ___ "Continue"
 
+  step=4
 fi
 
 if [[ -n "$step" && "$step" == "4" ]]; then 
+  __ "Step 4 - ..." 2
+  step=5
+fi
+if [[ -n "$step" && "$step" == "5" ]]; then 
+  __ "Step 5 - ..." 2
 fi
