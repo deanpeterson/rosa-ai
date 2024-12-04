@@ -74,6 +74,6 @@ source tools/format.sh; eval "$(egrep '\s_{2}\s' setup.sh)"
 ```
 
 ## Demo Deployment Instructions
-Please follow the AI Starter Kit submodules installation instructions here
+Please follow the AI Starter Kit submodule's installation instructions here
 [AI Starter Kit Installation Instructions](ai-hackathon-starter)
 
