@@ -1,5 +1,6 @@
 source tools/format.sh
 step=$1
+NAMESPACE=odyssey
 clusterName="rosa-$GUID"
 clusterInfo=$(rosa list clusters -o json)
 CONSOLE_URL=$(echo "$clusterInfo" | jq -r '.[].console.url')
@@ -30,12 +31,13 @@ if [[ -z "$step" || "$step" == "1" ]]; then
   fi
   
   __ "Collect Demo App details" 3
+  
   step=2
 fi
 
 if [[ -n "$step" && "$step" == "2" ]]; then 
   __ "Step 2 - Setup Project/Namespace" 2
-  _? "What is the namespace for the AI demo app: " NAMESPACE demo
+  _? "What is the namespace for the AI demo app: " NAMESPACE $NAMESPACE
 
   oc get ns $NAMESPACE 2>&1 
   if [ $? -ne 0 ]; then
@@ -49,6 +51,9 @@ fi
 
 if [[ -n "$step" && "$step" == "3" ]]; then 
   __ "Step 3 - Install Red Hat Keycloak" 2
+  
+  __ "Manually install Red Hat Keycloak Operator" 3
+    ___ "Continue"
 
   __ "Create SSL Certificate" 3
   __ "Generate SSL Certificate" 4
@@ -66,8 +71,14 @@ if [[ -n "$step" && "$step" == "3" ]]; then
   __ "Run helm charts for postgresql" 3
   cmd "helm install keycloak-postgresql ${GITOPS_PATH}rhbk/keycloak-postgresql-chart/"
 
-  __ "Use pgAdmin-4 to restore the keycloak.backup file in the gitops/rhbk folder" 3
-    ___ "Continue"
+  __ "Restore the keycloak.backup file in the gitops/rhbk folder to postgresql" 3
+  password=$(grep password ../demo-app/gitops/rhbk/keycloak-postgresql-chart/values.yaml | perl -pe 's/[^"]*"(.*?)".*?$/$1/')
+  pod=$(oc get pod -l name=keycloak-postgresql -n odyssey -o name | cut -d\/ -f2-)
+  # oc rsh pod/$pod /bin/bash -c 'pg_dump -d keycloak -U postgres -F t -f /var/lib/pgsql/data/userdata/keycloak.backup
+  cmd "rsync --rsh='oc rsh' ../demo-app/gitops/rhbk/keycloak.backup $pod:/var/lib/pgsql/data/userdata/"
+  cmd "oc rsh pod/$pod /bin/bash -c 'ls -rtla /var/lib/pgsql/data/userdata/keycloak.backup'"
+  cmd "oc rsh pod/$pod /bin/bash -c 'pg_restore -d keycloak -U postgres /var/lib/pgsql/data/userdata/keycloak.backup'"
+  cmd "oc rsh pod/$pod /bin/bash -c 'rm -f /var/lib/pgsql/data/userdata/keycloak.backup*'"
 
   step=4
 fi
