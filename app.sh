@@ -1,6 +1,6 @@
 source tools/format.sh
 step=$1
-NAMESPACE=odyssey
+NAMESPACE=attempt5
 clusterName="rosa-$GUID"
 clusterInfo=$(rosa list clusters -o json)
 CONSOLE_URL=$(echo "$clusterInfo" | jq -r '.[].console.url')
@@ -52,9 +52,6 @@ fi
 if [[ -n "$step" && "$step" == "3" ]]; then 
   __ "Step 3 - Install Red Hat Keycloak" 2
   
-  __ "Manually install Red Hat Keycloak Operator" 3
-    ___ "Continue"
-
   __ "Create SSL Certificate" 3
   __ "Generate SSL Certificate" 4
   cmd "openssl req -subj '/CN=keycloak-${NAMESPACE}.${APP_URL}/O=Test Keycloak./C=US' -newkey rsa:2048 -nodes -x509 -days 365 -keyout ${SCRATCH_PATH}key.pem -out    ${SCRATCH_PATH}certificate.pem"
@@ -71,14 +68,27 @@ if [[ -n "$step" && "$step" == "3" ]]; then
   __ "Run helm charts for postgresql" 3
   cmd "helm install keycloak-postgresql ${GITOPS_PATH}rhbk/keycloak-postgresql-chart/"
 
+  __ "Wait for keycloak-postgres pod to be present" 4
+  oo 1 'oc get pod -l name=keycloak-postgresql -n $NAMESPACE -o name | wc -l'
+  cmd "oc wait pod -l name=keycloak-postgresql -n $NAMESPACE --for=condition=ready"
+
   __ "Restore the keycloak.backup file in the gitops/rhbk folder to postgresql" 3
   password=$(grep password ../demo-app/gitops/rhbk/keycloak-postgresql-chart/values.yaml | perl -pe 's/[^"]*"(.*?)".*?$/$1/')
-  pod=$(oc get pod -l name=keycloak-postgresql -n odyssey -o name | cut -d\/ -f2-)
+  pod=$(oc get pod -l name=keycloak-postgresql -n $NAMESPACE -o name | cut -d\/ -f2-)
   # oc rsh pod/$pod /bin/bash -c 'pg_dump -d keycloak -U postgres -F t -f /var/lib/pgsql/data/userdata/keycloak.backup
   cmd "rsync --rsh='oc rsh' ../demo-app/gitops/rhbk/keycloak.backup $pod:/var/lib/pgsql/data/userdata/"
   cmd "oc rsh pod/$pod /bin/bash -c 'ls -rtla /var/lib/pgsql/data/userdata/keycloak.backup'"
   cmd "oc rsh pod/$pod /bin/bash -c 'pg_restore -d keycloak -U postgres /var/lib/pgsql/data/userdata/keycloak.backup'"
   cmd "oc rsh pod/$pod /bin/bash -c 'rm -f /var/lib/pgsql/data/userdata/keycloak.backup*'"
+
+  __ "Configure keycloak variables" 3
+  keycloakConfig=${GITOPS_PATH}rhbk/keycloak-chart/values.yaml
+  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
+  cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $keycloakConfig"
+  cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $keycloakConfig"
+
+  __ "Run helm charts" 3
+  cmd "helm install keycloak ${GITOPS_PATH}rhbk/keycloak-chart/"
 
   step=4
 fi
