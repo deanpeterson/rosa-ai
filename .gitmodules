@@ -1,0 +1,3 @@
+[submodule "ai-hackathon-starter"]
+	path = ai-hackathon-starter
+	url = https://github.com/purefield-demo-team/ai-hackathon-starter.git
