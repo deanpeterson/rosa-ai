@@ -73,7 +73,7 @@ It will start on your local machine by gathering initial information and then co
 source tools/format.sh; eval "$(egrep '\s_{2}\s' setup.sh)"
 ```
 
-## Demo Deployment Instructions
-Please follow the AI Starter Kit submodule's installation instructions here
+## AI Demo Deployment Instructions
+Now for the AI Demo components. The first part above set up the infrastructure for the following submodule to be deployed. Please follow the AI Starter Kit submodule's installation instructions here
 [AI Starter Kit Installation Instructions](ai-hackathon-starter)
 
