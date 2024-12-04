@@ -74,6 +74,7 @@ source tools/format.sh; eval "$(egrep '\s_{2}\s' setup.sh)"
 ```
 
 ## AI Demo Deployment Instructions
+![ai-hackathon-starter](ai-hackathon-starter/architecture.png)
 Now for the AI Demo components. The first part above set up the infrastructure for the following submodule to be deployed. Please follow the AI Starter Kit submodule's installation instructions here
 [AI Starter Kit Installation Instructions](ai-hackathon-starter)
 
