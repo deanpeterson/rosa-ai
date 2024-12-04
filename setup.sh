@@ -34,7 +34,7 @@ if [[ -n "$step" && "$step" == "2" ]]; then
 fi
 if [[ -n "$step" && "$step" == "3" ]]; then 
   __ "Step 3 - Configure ROSA machine pool" 3
-  _? "What is the instance type to use" instanceType g5.4xlarge
+  _? "What is the instance type to use" instanceType g4dn.8xlarge
   _? "What is the number of minimum replicas" minReplicas 2
   _? "What is the number of maximum replicas" maxReplicas 10
   __ "Add $instanceType machine pool with $minReplicas <= n <= $maxReplicas nodes" 4
@@ -61,7 +61,7 @@ if [[ -n "$step" && "$step" == "5" ]]; then
   oo $(rosa list machinepools -c rosa-$GUID -o json | jq '.[] | select(.id=="ai-worker") .autoscaling.min_replica') "rosa list machinepools -c rosa-$GUID -o json | jq '$query'"
   unset query
   __ "Switch to AI machine pool" 4
-  cmd "rosa update machinepool -c rosa-$GUID --replicas 0 workers"
+  cmd "rosa update machinepool -c rosa-$GUID --replicas 2 workers"
   __ "Verify machine pools" 4
   cmd "rosa list machinepools -c rosa-$GUID"
   step=6
