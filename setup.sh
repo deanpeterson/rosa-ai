@@ -72,12 +72,12 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   cmd "oc apply -f configs/nfd-operator-ns.yaml"
   cmd "oc apply -f configs/nfd-operator-group.yaml"
   cmd "oc apply -f configs/nfd-operator-sub.yaml"
-  oo 1 "oc get CustomResourceDefinition nodefeaturediscoveries.nfd.openshift.io -o name | wc -l"
+  oo 1 "oc get CustomResourceDefinition nodefeaturediscoveries.nfd.openshift.io -o name 2>/dev/null | wc -l"
   cmd "oc apply -f configs/nfd-instance.yaml"
   cmd "oc apply -f configs/nvidia-gpu-operator-ns.yaml"
   cmd "oc apply -f configs/nvidia-gpu-operator-group.yaml"
   cmd "oc apply -f configs/nvidia-gpu-operator-subscription.yaml"
-  oo 1 "oc get CustomResourceDefinition clusterpolicies.nvidia.com -o name  | wc -l"
+  oo 1 "oc get CustomResourceDefinition clusterpolicies.nvidia.com -o name 2>/dev/null | wc -l"
   cmd "oc apply -f configs/nvidia-gpu-deviceplugin-cm.yaml"
   cmd "oc apply -f configs/nvidia-gpu-clusterpolicy.yaml"
 
@@ -107,7 +107,7 @@ if [[ -n "$step" && "$step" == "7" ]]; then
   oo 3 'oc get projects | grep -E "redhat-ods|rhods" | wc -l'
   cmd oc create -f configs/rhoai-operator-dsc.yaml
   __ "Verify dependencies are installed" 5
-  oo 9 "oc get DSCInitialization,FeatureTracker -n redhat-ods-operator | egrep -i 'DSCInitialization|FeatureTracker' | grep -iv Progressing | wc -l"
+  oo 9 "oc get DSCInitialization,FeatureTracker -n redhat-ods-operator 2>/dev/null | egrep -i 'DSCInitialization|FeatureTracker' | grep -iv Progressing | wc -l"
   cmd oc get DSCInitialization,FeatureTracker -n redhat-ods-operator
   __ "OpenShift Pipelines" 4
   cmd "oc apply -f configs/pipelines-subscription.yaml"
