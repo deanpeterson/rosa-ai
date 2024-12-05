@@ -82,7 +82,7 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   cmd "oc apply -f configs/nvidia-gpu-clusterpolicy.yaml"
 
   __ "Wait for nvidia gpu operator dependencies to be ready" 3
-  oo 9 "oc get pod -n nvidia-gpu-operator -o name | wc -l"
+  oo 9 "oc get pod -n nvidia-gpu-operator -o json | jq -r '.items[] | .status.phase' | egrep 'Running' | wc -l"
   cmd "oc wait pod --all -n nvidia-gpu-operator --for=condition=ready --timeout=15m"
   step=7
 fi
