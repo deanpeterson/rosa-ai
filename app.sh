@@ -160,7 +160,13 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   __ "Install python dependencies" 4
   cmd "pip install -qr requirements.txt"
   __ "Run Python Sync from HuggingFace to S3 bucket" 4
-  cmd "echo python sync-model.py"
+  _? "Connection Name" s3Connection aws-connection-my-storage
+  export ENDPOINT_URL=$(oc get secret -n redhat $s3Connection -o template --template '{{.data.AWS_S3_ENDPOINT}}' | base64 -d)
+  export AWS_S3_BUCKET=$(oc get secret -n redhat $s3Connection -o template --template '{{.data.AWS_S3_BUCKET}}' | base64 -d)
+  export AWS_ACCESS_KEY_ID=$(oc get secret -n redhat $s3Connection -o template --template '{{.data.AWS_ACCESS_KEY_ID}}' | base64 -d)
+  export AWS_SECRET_ACCESS_KEY=$(oc get secret -n redhat $s3Connection -o template --template '{{.data.AWS_SECRET_ACCESS_KEY}}' | base64 -d)
+  cmd "python sync-model.py"
+  unset ENDPOINT_URL; unset AWS_ACCESS_KEY_ID; unset AWS_SECRET_ACCESS_KEY
 
   __ "Update model server helm chart variables" 3
   serverConfig=${GITOPS_PATH}vector-ask/ai-model/values.yaml

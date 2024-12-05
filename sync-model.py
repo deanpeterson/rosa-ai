@@ -6,16 +6,16 @@ import os
 # Initialize S3 client
 s3 = boto3.client(
         's3', 
-        endpoint_url='',
-        aws_access_key_id='', 
-        aws_secret_access_key='',
+        endpoint_url=os.environ.get('ENDPOINT_URL'),
+        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
         config=boto3.session.Config(signature_version='s3v4'),
         verify=False
 )
 
 # Model and S3 details
+bucket_name = os.environ.get('AWS_S3_BUCKET')
 model_id    = 'defog/llama-3-sqlcoder-8b'
-bucket_name = 'my-storage'
 s3_prefix   = 'models/llama-3-sqlcoder-8b/'
 
 api = HfApi()
