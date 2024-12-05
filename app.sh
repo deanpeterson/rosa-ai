@@ -95,9 +95,11 @@ fi
 
 if [[ -n "$step" && "$step" == "4" ]]; then 
   __ "Step 4 - Install Strapi" 2
-  strapiConfig=${GITOPS_PATH}strapi/values.yaml
   baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
   podSelector="-l name=strapi-postgresql -n $NAMESPACE"
+
+  __ "Update strapi helm chart variables" 3
+  strapiConfig=${GITOPS_PATH}strapi/values.yaml
   cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $strapiConfig"
   cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $strapiConfig"
 
@@ -134,12 +136,18 @@ if [[ -n "$step" && "$step" == "4" ]]; then
 fi
 
 if [[ -n "$step" && "$step" == "5" ]]; then 
-  __ "Step 5 - ..." 2
-  __ "Update Vector-ask-short url" 3
-  podSelector="-l name=strapi-postgresql -n $NAMESPACE"
-  pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
+  __ "Step 5 - Install Redis" 2
   baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
+  
+  __ "Update redis-search helm chart variables" 3
+  redisConfig=${GITOPS_PATH}redis-search/values.yaml
+  cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $redisConfig"
+  cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $redisConfig"
 
+  __ "Run helm charts for redis" 3
+  cmd "helm install redis-search ${GITOPS_PATH}redis-search/"
+
+  step=6
 fi
 if [[ -n "$step" && "$step" == "6" ]]; then 
   __ "Step 6 - ..." 2
