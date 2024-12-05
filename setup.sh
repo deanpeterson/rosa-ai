@@ -108,10 +108,26 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   cmd "oc patch checluster devspaces -n openshift-devspaces --type='merge' -p='$patch'"
   step=7
 fi
-# Have a default storage class
 if [[ -n "$step" && "$step" == "7" ]]; then 
+  __ "Step 7 - Configure Nvidia GPU and Node Feature Discovery" 3
+  cmd "oc apply -f configs/nfd-operator-ns.yaml"
+  cmd "oc apply -f configs/nfd-operator-group.yaml"
+  cmd "oc apply -f configs/nfd-operator-sub.yaml"
+  oo 1 "oc get CustomResourceDefinition nodefeaturediscoveries.nfd.openshift.io -o name | wc -l"
+  cmd "oc apply -f configs/nfd-instance.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-operator-ns.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-operator-group.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-operator-subscription.yaml"
+  oo 1 "oc get CustomResourceDefinition clusterpolicies.nvidia.com -o name  | wc -l"
+  cmd "oc apply -f configs/nvidia-gpu-deviceplugin-cm.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-clusterpolicy.yaml"
+
+  step=8
+fi
+# Have a default storage class
+if [[ -n "$step" && "$step" == "8" ]]; then 
   __ "Set up Teams" 2
-  __ "Step 7 - Create namespace for each team, setup groups and roles" 3
+  __ "Step 8 - Create namespace for each team, setup groups and roles" 3
   __ "Provision S3 Storage (endpoint requires protocol, valid cert via public url)" 4
   __ "Create groups for each team with 10 users" 5
   __ "Create Data Science Project" 6
