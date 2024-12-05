@@ -151,14 +151,27 @@ if [[ -n "$step" && "$step" == "5" ]]; then
 fi
 if [[ -n "$step" && "$step" == "6" ]]; then 
   __ "Step 6 - Setup Model Server" 2
+  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
 
   __ "Setup S3 Storage" 3
   cmd "oc apply -n $NAMESPACE -f configs/setup-s3.yaml"
+
+  __ "Sync Model to S3 bucket" 3
+  __ "Install python dependencies" 4
+  cmd "pip install -qr requirements.txt"
+  __ "Run Python Sync from HuggingFace to S3 bucket" 4
+  cmd "echo python sync-model.py"
+
+  __ "Update model server helm chart variables" 3
+  serverConfig=${GITOPS_PATH}vector-ask/ai-model/values.yaml
+  cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $serverConfig"
+  cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $serverConfig"
+
+  __ "Run helm charts for redis" 3
+  cmd "helm install vector-ask-model ${GITOPS_PATH}vector-ask/ai-model/"
+
   step=7
 fi
 if [[ -n "$step" && "$step" == "7" ]]; then 
   __ "Step 7 - " 2
-  pip install -r requirements.txt
-  python sync-model.py
-
 fi
