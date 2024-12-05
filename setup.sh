@@ -67,8 +67,28 @@ if [[ -n "$step" && "$step" == "5" ]]; then
   step=6
 fi
 if [[ -n "$step" && "$step" == "6" ]]; then 
+  __ "Set up Accellerators" 2
+  __ "Step 7 - Configure Nvidia GPU and Node Feature Discovery" 3
+  cmd "oc apply -f configs/nfd-operator-ns.yaml"
+  cmd "oc apply -f configs/nfd-operator-group.yaml"
+  cmd "oc apply -f configs/nfd-operator-sub.yaml"
+  oo 1 "oc get CustomResourceDefinition nodefeaturediscoveries.nfd.openshift.io -o name | wc -l"
+  cmd "oc apply -f configs/nfd-instance.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-operator-ns.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-operator-group.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-operator-subscription.yaml"
+  oo 1 "oc get CustomResourceDefinition clusterpolicies.nvidia.com -o name  | wc -l"
+  cmd "oc apply -f configs/nvidia-gpu-deviceplugin-cm.yaml"
+  cmd "oc apply -f configs/nvidia-gpu-clusterpolicy.yaml"
+
+  __ "Wait for nvidia gpu operator dependencies to be ready" 3
+  oo 9 "oc get pod -n nvidia-gpu-operator -o name | wc -l"
+  cmd "oc wait pod --all -n nvidia-gpu-operator --for=condition=ready --timeout=15m"
+  step=7
+fi
+if [[ -n "$step" && "$step" == "7" ]]; then 
   __ "Set up OpenShift AI" 2
-  __ "Step 6 - Install Operators" 3
+  __ "Step 7 - Install Operators" 3
   __ "Web Terminal Operator" 4
   cmd oc apply -f configs/web-terminal-subscription.yaml
   __ "OpenShift Service Mesh" 4
@@ -106,25 +126,6 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   __ "Patch CheCluster to never idle" 4
   patch='{"spec": {"devEnvironments": {"secondsOfInactivityBeforeIdling": -1,"secondsOfRunBeforeIdling": -1}}}'
   cmd "oc patch checluster devspaces -n openshift-devspaces --type='merge' -p='$patch'"
-  step=7
-fi
-if [[ -n "$step" && "$step" == "7" ]]; then 
-  __ "Step 7 - Configure Nvidia GPU and Node Feature Discovery" 3
-  cmd "oc apply -f configs/nfd-operator-ns.yaml"
-  cmd "oc apply -f configs/nfd-operator-group.yaml"
-  cmd "oc apply -f configs/nfd-operator-sub.yaml"
-  oo 1 "oc get CustomResourceDefinition nodefeaturediscoveries.nfd.openshift.io -o name | wc -l"
-  cmd "oc apply -f configs/nfd-instance.yaml"
-  cmd "oc apply -f configs/nvidia-gpu-operator-ns.yaml"
-  cmd "oc apply -f configs/nvidia-gpu-operator-group.yaml"
-  cmd "oc apply -f configs/nvidia-gpu-operator-subscription.yaml"
-  oo 1 "oc get CustomResourceDefinition clusterpolicies.nvidia.com -o name  | wc -l"
-  cmd "oc apply -f configs/nvidia-gpu-deviceplugin-cm.yaml"
-  cmd "oc apply -f configs/nvidia-gpu-clusterpolicy.yaml"
-
-  __ "Wait for nvidia gpu operator dependencies to be ready" 3
-  oo 9 "oc get pod -n nvidia-gpu-operator -o name | wc -l"
-  cmd "oc wait pod --all -n nvidia-gpu-operator --for=condition=ready --timeout=15m"
 
   step=8
 fi
