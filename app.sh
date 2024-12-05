@@ -106,19 +106,41 @@ if [[ -n "$step" && "$step" == "4" ]]; then
 
   __ "Wait for strapi-postgres pod to be present" 4
   oo 1 "oc get pod $podSelector -o name | wc -l"
-  cmd "oc wait pod $podSelector --for=condition=ready"
+  cmd "oc wait pod $podSelector --for=condition=ready --timeout=3m"
+  pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
 
   __ "Restore the strapi.backup file in the gitops/strapi folder to postgresql" 3
-  pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
   cmd "rsync --rsh='oc rsh' ${GITOPS_PATH}strapi/strapi.backup $pod:/var/lib/pgsql/data/userdata/"
   cmd "oc rsh pod/$pod /bin/bash -c 'ls -rtla /var/lib/pgsql/data/userdata/strapi.backup'"
   cmd "oc rsh pod/$pod /bin/bash -c 'pg_restore -d strapi -U postgres /var/lib/pgsql/data/userdata/strapi.backup'"
   cmd "oc rsh pod/$pod /bin/bash -c 'rm -f /var/lib/pgsql/data/userdata/strapi.backup*'"
 
+  __ "Update Keycloak url and namespace" 3
+  export sql="update strapi_core_store_settings set value=REPLACE(REPLACE(REPLACE(value, 'salamander', 'rosa'), 'aimlworkbench.com', '$baseDomain'), 'restore-db-test', '$NAMESPACE') where id = 20"
+  cmd 'oc rsh '$pod'  /bin/bash -c "psql -U postgres -d strapi -c \"$sql\""'
+  unset sql
+  
+  __ "Update Vector-ask-short url" 3
+  export sql="update strapi_webhooks set url=REPLACE(url, 'vector-ask-short.aimlworkbench.com', 'vector-ask-$NAMESPACE.apps.rosa.$baseDomain') where id in (2,3,5)"
+  cmd 'oc rsh '$pod'  /bin/bash -c "psql -U postgres -d strapi -c \"$sql\""'
+  unset sql
+
+  __ "Build strapi app" 3
+  cmd "oc start-build strapi"
+  __ "Wait for strapi build to complete" 4
+  cmd "oc wait builds -l buildconfig=strapi --for=condition=complete --timeout=3m"
+
   step=5
 fi
 
-
 if [[ -n "$step" && "$step" == "5" ]]; then 
   __ "Step 5 - ..." 2
+  __ "Update Vector-ask-short url" 3
+  podSelector="-l name=strapi-postgresql -n $NAMESPACE"
+  pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
+  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
+
+fi
+if [[ -n "$step" && "$step" == "6" ]]; then 
+  __ "Step 6 - ..." 2
 fi
