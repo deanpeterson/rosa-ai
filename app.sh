@@ -150,5 +150,15 @@ if [[ -n "$step" && "$step" == "5" ]]; then
   step=6
 fi
 if [[ -n "$step" && "$step" == "6" ]]; then 
-  __ "Step 6 - ..." 2
+  __ "Step 6 - Setup Model Server" 2
+
+  __ "Setup S3 Storage" 3
+  cmd "oc apply -n $NAMESPACE -f configs/setup-s3.yaml"
+  step=7
+fi
+if [[ -n "$step" && "$step" == "7" ]]; then 
+  __ "Step 7 - " 2
+  pip install -r requirements.txt
+  python sync-model.py
+
 fi
