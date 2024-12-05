@@ -1,6 +1,6 @@
 source tools/format.sh
 step=$1
-NAMESPACE=attempt9
+NAMESPACE=redhat
 clusterName="rosa-$GUID"
 clusterInfo=$(rosa list clusters -o json)
 CONSOLE_URL=$(echo "$clusterInfo" | jq -r '.[].console.url')
