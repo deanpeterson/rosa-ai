@@ -1,6 +1,6 @@
 source tools/format.sh
 step=$1
-NAMESPACE=attempt5
+NAMESPACE=attempt9
 clusterName="rosa-$GUID"
 clusterInfo=$(rosa list clusters -o json)
 CONSOLE_URL=$(echo "$clusterInfo" | jq -r '.[].console.url')
@@ -62,6 +62,7 @@ if [[ -n "$step" && "$step" == "3" ]]; then
   __ "Configure postgresql variables" 3
   postgresqlConfig=${GITOPS_PATH}rhbk/keycloak-postgresql-chart/values.yaml
   baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
+  podSelector="-l name=keycloak-postgresql -n $NAMESPACE"
   cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $postgresqlConfig"
   cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $postgresqlConfig"
 
@@ -69,14 +70,13 @@ if [[ -n "$step" && "$step" == "3" ]]; then
   cmd "helm install keycloak-postgresql ${GITOPS_PATH}rhbk/keycloak-postgresql-chart/"
 
   __ "Wait for keycloak-postgres pod to be present" 4
-  oo 1 'oc get pod -l name=keycloak-postgresql -n $NAMESPACE -o name | wc -l'
-  cmd "oc wait pod -l name=keycloak-postgresql -n $NAMESPACE --for=condition=ready"
+  oo 1 "oc get pod $podSelector -o name | wc -l"
+  cmd "oc wait pod $podSelector --for=condition=ready"
 
   __ "Restore the keycloak.backup file in the gitops/rhbk folder to postgresql" 3
-  password=$(grep password ../demo-app/gitops/rhbk/keycloak-postgresql-chart/values.yaml | perl -pe 's/[^"]*"(.*?)".*?$/$1/')
-  pod=$(oc get pod -l name=keycloak-postgresql -n $NAMESPACE -o name | cut -d\/ -f2-)
+  pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
   # oc rsh pod/$pod /bin/bash -c 'pg_dump -d keycloak -U postgres -F t -f /var/lib/pgsql/data/userdata/keycloak.backup
-  cmd "rsync --rsh='oc rsh' ../demo-app/gitops/rhbk/keycloak.backup $pod:/var/lib/pgsql/data/userdata/"
+  cmd "rsync --rsh='oc rsh' ${GITOPS_PATH}rhbk/keycloak.backup $pod:/var/lib/pgsql/data/userdata/"
   cmd "oc rsh pod/$pod /bin/bash -c 'ls -rtla /var/lib/pgsql/data/userdata/keycloak.backup'"
   cmd "oc rsh pod/$pod /bin/bash -c 'pg_restore -d keycloak -U postgres /var/lib/pgsql/data/userdata/keycloak.backup'"
   cmd "oc rsh pod/$pod /bin/bash -c 'rm -f /var/lib/pgsql/data/userdata/keycloak.backup*'"
@@ -94,9 +94,31 @@ if [[ -n "$step" && "$step" == "3" ]]; then
 fi
 
 if [[ -n "$step" && "$step" == "4" ]]; then 
-  __ "Step 4 - ..." 2
+  __ "Step 4 - Install Strapi" 2
+  strapiConfig=${GITOPS_PATH}strapi/values.yaml
+  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
+  podSelector="-l name=strapi-postgresql -n $NAMESPACE"
+  cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $strapiConfig"
+  cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $strapiConfig"
+
+  __ "Run helm charts for strapi" 3
+  cmd "helm install strapi ${GITOPS_PATH}strapi/"
+
+  __ "Wait for strapi-postgres pod to be present" 4
+  oo 1 "oc get pod $podSelector -o name | wc -l"
+  cmd "oc wait pod $podSelector --for=condition=ready"
+
+  __ "Restore the strapi.backup file in the gitops/strapi folder to postgresql" 3
+  pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
+  cmd "rsync --rsh='oc rsh' ${GITOPS_PATH}strapi/strapi.backup $pod:/var/lib/pgsql/data/userdata/"
+  cmd "oc rsh pod/$pod /bin/bash -c 'ls -rtla /var/lib/pgsql/data/userdata/strapi.backup'"
+  cmd "oc rsh pod/$pod /bin/bash -c 'pg_restore -d strapi -U postgres /var/lib/pgsql/data/userdata/strapi.backup'"
+  cmd "oc rsh pod/$pod /bin/bash -c 'rm -f /var/lib/pgsql/data/userdata/strapi.backup*'"
+
   step=5
 fi
+
+
 if [[ -n "$step" && "$step" == "5" ]]; then 
   __ "Step 5 - ..." 2
 fi
