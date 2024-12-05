@@ -122,6 +122,10 @@ if [[ -n "$step" && "$step" == "7" ]]; then
   cmd "oc apply -f configs/nvidia-gpu-deviceplugin-cm.yaml"
   cmd "oc apply -f configs/nvidia-gpu-clusterpolicy.yaml"
 
+  __ "Wait for nvidia gpu operator dependencies to be ready" 3
+  oo 9 "oc get pod -n nvidia-gpu-operator -o name | wc -l"
+  cmd "oc wait pod --all -n nvidia-gpu-operator --for=condition=ready --timeout=15m"
+
   step=8
 fi
 # Have a default storage class
