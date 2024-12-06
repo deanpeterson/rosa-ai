@@ -220,7 +220,7 @@ if [[ -n "$step" && "$step" == "9" ]]; then
   __ "Step 9 - Install React Frontend" 2
 
   _? "Optional: OpenAI Key: " openAiKey xxxxxx $openAiKey
-  strapiUrl="https://strapi-$NAMESPACE.apps.rosa.$baseDomain"
+  strapiUrl="https://strapi-$NAMESPACE.apps.rosa.$baseDomain/api"
   keycloakUrl="https://keycloak-$NAMESPACE.apps.rosa.$baseDomain"
   setValues="openai.key=$openAiKey,cluster.name=rosa,cluster.domain=$baseDomain,strapi.url=$strapiUrl,keycloak.url=$keycloakUrl"
 
