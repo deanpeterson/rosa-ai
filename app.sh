@@ -240,5 +240,17 @@ if [[ -n "$step" && "$step" == "9" ]]; then
   __ "Wait for react-frontend build to complete" 4
   cmd "oc wait builds -l buildconfig=react-frontend --for=condition=complete --timeout=5m"
 
+  step=final
+fi
+if [[ -n "$step" && "$step" == "final" ]]; then 
+  __ "Final Step - Verification" 2
+
+  __ "Wait for model servers to be ready" 3
+  cmd "oc wait Service.serving.knative.dev -n redhat --all --for=condition=ready --timeout=15m"
+
+  __ "Here are the deployed routes to the apps" 3
+  __ "Open thei react-frontent app in your browser and register to log in:" 4
+  oc get route -n redhat -o json | jq -r '.items[] | [.metadata.name, ", https://", .spec.host] | join ("")'
+
   ___ "Deployment Complete"
 fi
