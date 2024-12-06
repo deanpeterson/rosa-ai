@@ -202,16 +202,10 @@ fi
 if [[ -n "$step" && "$step" == "8" ]]; then 
   __ "Step 8 - Install Quarkus Vector-Ask App" 2
   
-  __ "Update quarkus helm chart variables" 3
-  quarkusConfig=${GITOPS_PATH}vector-ask/quarkus/values.yaml
-  cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $quarkusConfig"
-  cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $quarkusConfig"
-
   _? "Optional: OpenAI Key: " openAiKey xxxxxx
-  _? "Required: Strapi Token" strapiToken 
   vllmApiUrl="https://llama-3-sqlcoder-8b-$NAMESPACE.apps.rosa.$baseDomain/v1"
-  setValues="openai.key=$openAiKey,strapi.token=$strapiToken,cluster.name=rosa,cluster.domain=$baseDomain,vllmApiUrl=$vllmApiUrl"
-
+  setValues="openai.key=$openAiKey,cluster.name=rosa,cluster.domain=$baseDomain,vllmApiUrl=$vllmApiUrl"
+  
   __ "Run helm charts for quarkus app" 3
   cmd "helm install vector-ask ${GITOPS_PATH}vector-ask/quarkus/ --set-string '$setValues'"
 
