@@ -209,8 +209,26 @@ if [[ -n "$step" && "$step" == "8" ]]; then
   __ "Run helm charts for quarkus app" 3
   cmd "helm install vector-ask ${GITOPS_PATH}vector-ask/quarkus/ --set-string '$setValues'"
 
+  __ "Build quarkus app" 3
+  cmd "oc start-build vector-ask"
+  __ "Wait for vector-ask build to complete" 4
+  cmd "oc wait builds -l buildconfig=vector-ask --for=condition=complete --timeout=5m"
+
   step=9
 fi
 if [[ -n "$step" && "$step" == "9" ]]; then 
-  __ "Step 9  - " 2
+  __ "Step 9 - Install React Frontend" 2
+
+  _? "Optional: OpenAI Key: " openAiKey xxxxxx $openAiKey
+  strapiUrl="https://strapi-$NAMESPACE.apps.rosa.$baseDomain/v1"
+  keycloakUrl="https://keycloak-$NAMESPACE.apps.rosa.$baseDomain/v1"
+  setValues="openai.key=$openAiKey,cluster.name=rosa,cluster.domain=$baseDomain,strapi.url=$strapiUrl,keycloak.url=$keycloakUrl"
+
+  __ "Run helm charts for the react app" 3
+  cmd "helm install react-frontend ${GITOPS_PATH}react-frontend/ --set-string '$setValues'"
+
+  __ "Build react-frontend app" 3
+  cmd "oc start-build react-frontend"
+  __ "Wait for react-frontend build to complete" 4
+  cmd "oc wait builds -l buildconfig=react-frontend --for=condition=complete --timeout=5m"
 fi
