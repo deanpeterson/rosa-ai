@@ -71,7 +71,7 @@ if [[ -n "$step" && "$step" == "3" ]]; then
 
   __ "Wait for keycloak-postgres pod to be present" 4
   oo 1 "oc get pod $podSelector -o name | wc -l"
-  cmd "oc wait pod $podSelector --for=condition=ready"
+  cmd "oc wait pod $podSelector --for=condition=ready --timeout=3m"
 
   __ "Restore the keycloak.backup file in the gitops/rhbk folder to postgresql" 3
   pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
