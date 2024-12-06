@@ -59,7 +59,8 @@ It will start on your local machine by gathering initial information and then co
    * OpenShift Pipelines
    * OpenShift Dev Spaces
      * CheCluster
-7. Create namespace and roles for each team, setup users into groups
+7. Install Hardware Accellerators
+8. Create namespace and roles for each team, setup users (10 per group) into groups (up to 30)
    * DevSpaces Application development 
    * OpenShift AI 
      * Minio OBS and two connections
