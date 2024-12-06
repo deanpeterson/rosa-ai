@@ -237,4 +237,6 @@ if [[ -n "$step" && "$step" == "9" ]]; then
   cmd "oc start-build react-frontend"
   __ "Wait for react-frontend build to complete" 4
   cmd "oc wait builds -l buildconfig=react-frontend --for=condition=complete --timeout=5m"
+
+  ___ "Deployment Complete"
 fi
