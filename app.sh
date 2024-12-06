@@ -161,7 +161,8 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   export AWS_S3_BUCKET=$(oc get secret -n redhat $s3Connection -o template --template '{{.data.AWS_S3_BUCKET}}' | base64 -d)
   export AWS_ACCESS_KEY_ID=$(oc get secret -n redhat $s3Connection -o template --template '{{.data.AWS_ACCESS_KEY_ID}}' | base64 -d)
   export AWS_SECRET_ACCESS_KEY=$(oc get secret -n redhat $s3Connection -o template --template '{{.data.AWS_SECRET_ACCESS_KEY}}' | base64 -d)
-  cmd "python sync-model.py"
+  cmd "python ./sync-model.py -m 'defog/llama-3-sqlcoder-8b'       -b 'llama-3-sqlcoder-8b'"
+  cmd "python ./sync-model.py -m 'intfloat/e5-mistral-7b-instruct' -b 'e5-mistral-7b-instruct'"
   unset ENDPOINT_URL; unset AWS_ACCESS_KEY_ID; unset AWS_SECRET_ACCESS_KEY
 
   __ "Update model server helm chart variables" 3
