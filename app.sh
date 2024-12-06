@@ -205,7 +205,8 @@ if [[ -n "$step" && "$step" == "8" ]]; then
   
   _? "Optional: OpenAI Key: " openAiKey xxxxxx
   vllmApiUrl="https://llama-3-sqlcoder-8b-$NAMESPACE.apps.rosa.$baseDomain/v1"
-  setValues="openai.key=$openAiKey,cluster.name=rosa,cluster.domain=$baseDomain,vllmApiUrl=$vllmApiUrl"
+  vllmEmbeddingApiUrl="https://e5-mistral-7b-instruct-$NAMESPACE.apps.rosa.$baseDomain/v1"
+  setValues="openai.key=$openAiKey,cluster.name=rosa,cluster.domain=$baseDomain,vllmApiUrl=$vllmApiUrl,vllmEmbeddingApiUrl=$vllmEmbeddingApiUrl"
   
   __ "Run helm charts for quarkus app" 3
   cmd "helm install vector-ask ${GITOPS_PATH}vector-ask/quarkus/ --set-string '$setValues'"
