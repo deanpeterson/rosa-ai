@@ -246,7 +246,7 @@ if [[ -n "$step" && "$step" == "final" ]]; then
   __ "Final Step - Verification" 2
 
   __ "Wait for model servers to be ready" 3
-  cmd "oc wait Service.serving.knative.dev -n redhat --all --for=condition=ready --timeout=15m"
+  cmd "oc wait InferenceService.serving.kserve.io -n redhat --all --for=condition=ready --timeout=15m"
 
   __ "Here are the deployed routes to the apps" 3
   __ "Open the react-frontent app in your browser and register to log in:" 4
