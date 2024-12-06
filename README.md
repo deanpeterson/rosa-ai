@@ -4,7 +4,7 @@
 </div>
 <br/>
 
-<br/><b>[AI Odyssey Demo AI Starter Kit RAG and NL2SQL](https://docs.google.com/presentation/d/1hNml-zEJ53uW1xOFJHf4zDsSAr4EoOBY0MFTheHTV5I/edit?usp=sharing)</b>
+<br/><b>[AI Odyssey Demo AI Starter Kit - RAG and NL2SQL](https://docs.google.com/presentation/d/1hNml-zEJ53uW1xOFJHf4zDsSAr4EoOBY0MFTheHTV5I/edit?usp=sharing)</b>
 
 ## Infrastructure Deployment Instructions
 We are using the demo system to setup the ROSA Workshop environment. 
