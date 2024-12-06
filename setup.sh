@@ -128,7 +128,6 @@ if [[ -n "$step" && "$step" == "7" ]]; then
 
   step=8
 fi
-# Have a default storage class
 if [[ -n "$step" && "$step" == "8" ]]; then 
   __ "Set up Teams" 2
   __ "Step 8 - Create namespace for each team, setup groups and roles" 3
@@ -137,7 +136,13 @@ if [[ -n "$step" && "$step" == "8" ]]; then
   __ "Create Data Science Project" 6
   __ "Application Routes" 6
   __ "Create Workbench" 6
-  cmd ./rosa-create-users-groups.sh 3
+  ./rosa-create-users-groups.sh
+  step=9
+fi
+if [[ -n "$step" && "$step" == "9" ]]; then 
+  __ "Setup Demo Application stack" 2
+  __ "Step 9 - Run app.sh" 3
+  ./app.sh
 fi
 exit 0;
 # Available images: oc get imagestream -n redhat-ods-applications
