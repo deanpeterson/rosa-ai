@@ -12,6 +12,7 @@ PROJECT_PATH=$(dirname $SETUP_PATH)
 DEMO_PATH=$PROJECT_PATH/demo-app/
 SCRATCH_PATH="$DEMO_PATH/scratch/"
 GITOPS_PATH="$DEMO_PATH/gitops/"
+baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
 __ "Install AI Demo App" 1
 
 if [[ -z "$step" || "$step" == "1" ]]; then 
@@ -61,7 +62,6 @@ if [[ -n "$step" && "$step" == "3" ]]; then
 
   __ "Configure postgresql variables" 3
   postgresqlConfig=${GITOPS_PATH}rhbk/keycloak-postgresql-chart/values.yaml
-  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
   podSelector="-l name=keycloak-postgresql -n $NAMESPACE"
   cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $postgresqlConfig"
   cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $postgresqlConfig"
@@ -83,7 +83,6 @@ if [[ -n "$step" && "$step" == "3" ]]; then
 
   __ "Configure keycloak variables" 3
   keycloakConfig=${GITOPS_PATH}rhbk/keycloak-chart/values.yaml
-  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
   cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $keycloakConfig"
   cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $keycloakConfig"
 
@@ -95,7 +94,6 @@ fi
 
 if [[ -n "$step" && "$step" == "4" ]]; then 
   __ "Step 4 - Install Strapi" 2
-  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
   podSelector="-l name=strapi-postgresql -n $NAMESPACE"
 
   __ "Update strapi helm chart variables" 3
@@ -137,7 +135,6 @@ fi
 
 if [[ -n "$step" && "$step" == "5" ]]; then 
   __ "Step 5 - Install Redis" 2
-  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
   
   __ "Update redis-search helm chart variables" 3
   redisConfig=${GITOPS_PATH}redis-search/values.yaml
@@ -151,7 +148,6 @@ if [[ -n "$step" && "$step" == "5" ]]; then
 fi
 if [[ -n "$step" && "$step" == "6" ]]; then 
   __ "Step 6 - Setup Model Server" 2
-  baseDomain=$(echo $BASE_DOMAIN | cut -d\. -f2-)
 
   __ "Setup S3 Storage" 3
   cmd "oc apply -n $NAMESPACE -f configs/setup-s3.yaml"
@@ -173,11 +169,54 @@ if [[ -n "$step" && "$step" == "6" ]]; then
   cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $serverConfig"
   cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $serverConfig"
 
-  __ "Run helm charts for redis" 3
+  __ "Run helm charts for model server" 3
   cmd "helm install vector-ask-model ${GITOPS_PATH}vector-ask/ai-model/"
 
   step=7
 fi
 if [[ -n "$step" && "$step" == "7" ]]; then 
-  __ "Step 7 - " 2
+  __ "Step 7 - Install NL2SQL" 2
+  podSelector="-l name=nl2sql-sample-postgresql-postgresql -n $NAMESPACE"
+
+  __ "Update nl2sql helm chart variables" 3
+  nl2sqlConfig=${GITOPS_PATH}vector-ask/nl2sql-sample-db/values.yaml
+  cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $nl2sqlConfig"
+  cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $nl2sqlConfig"
+
+  __ "Run helm charts for nl2sql" 3
+  cmd "helm install nl2sql-sample-postgresql ${GITOPS_PATH}vector-ask/nl2sql-sample-db/"
+
+  __ "Wait for nl2sql-postgres pod to be present" 4
+  oo 1 "oc get pod $podSelector -o name | wc -l"
+  cmd "oc wait pod $podSelector --for=condition=ready --timeout=3m"
+  pod=$(oc get pod $podSelector -o name | cut -d\/ -f2-)
+
+  __ "Restore the dvdrental.backup file in the gitops/vector-ask/nl2sql-sample-db folder to postgresql" 3
+  cmd "rsync --rsh='oc rsh' ${GITOPS_PATH}vector-ask/nl2sql-sample-db/dvdrental.backup $pod:/var/lib/pgsql/data/userdata/"
+  cmd "oc rsh pod/$pod /bin/bash -c 'ls -rtla /var/lib/pgsql/data/userdata/dvdrental.backup'"
+  cmd "oc rsh pod/$pod /bin/bash -c 'pg_restore -d nl2sql-sample -U postgres /var/lib/pgsql/data/userdata/dvdrental.backup'"
+  cmd "oc rsh pod/$pod /bin/bash -c 'rm -f /var/lib/pgsql/data/userdata/dvdrental.backup'"
+
+  step=8
+fi
+if [[ -n "$step" && "$step" == "8" ]]; then 
+  __ "Step 8 - Install Quarkus Vector-Ask App" 2
+  
+  __ "Update quarkus helm chart variables" 3
+  quarkusConfig=${GITOPS_PATH}vector-ask/quarkus/values.yaml
+  cmd "perl -pe 's/(\s+name:) salamander/\$1 rosa/' -i $quarkusConfig"
+  cmd "perl -pe 's/(\s+domain:) aiml.*?$/\$1 $baseDomain/' -i $quarkusConfig"
+
+  _? "Optional: OpenAI Key: " openAiKey xxxxxx
+  _? "Required: Strapi Token" strapiToken 
+  vllmApiUrl="https://llama-3-sqlcoder-8b-$NAMESPACE.apps.rosa.$baseDomain/v1"
+  setValues="openai.key=$openAiKey,strapi.token=$strapiToken,cluster.name=rosa,cluster.domain=$baseDomain,vllmApiUrl=$vllmApiUrl"
+
+  __ "Run helm charts for quarkus app" 3
+  cmd "helm install vector-ask ${GITOPS_PATH}vector-ask/quarkus/ --set-string '$setValues'"
+
+  step=9
+fi
+if [[ -n "$step" && "$step" == "9" ]]; then 
+  __ "Step 9  - " 2
 fi
