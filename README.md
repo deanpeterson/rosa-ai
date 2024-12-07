@@ -77,3 +77,5 @@ source tools/format.sh; eval "$(egrep '\s_{2}\s' setup.sh)"
 ![ai-hackathon-starter](architecture.png)
 Now for the AI Demo components. Simply run ./app.sh to kick off the demo application installation
 
+Once ./app.sh completes successfuly you can [follow these instructions to try the application](testing-the-application-readme)
+
