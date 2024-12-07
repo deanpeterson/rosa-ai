@@ -73,9 +73,11 @@ It will start on your local machine by gathering initial information and then co
 source tools/format.sh; eval "$(egrep '\s_{2}\s' setup.sh)"
 ```
 
-## AI Demo Deployment Instructions
+## AI Demo Architecture
 ![ai-hackathon-starter](architecture.png)
-Now for the AI Demo components. Simply run ./app.sh to kick off the demo application installation
+## AI Demo Deployment Instructions
+
+Simply run ##./app.sh## to kick off the demo application installation
 
 Once ./app.sh completes successfuly you can [follow these instructions to try the application](testing-the-application-readme)
 
