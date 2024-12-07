@@ -13,7 +13,7 @@ This environment will be modified by replacing the worker nodes with instances t
 As part of the setup we deploy OpenShift AI, Dev Spaces, Pipelines, MinIO and setup users into groups with dedicated namespaces. This allows for collaboration in isolated groups such as during a build-a-thon event.
 
 #### The environment is setup to
- * run the Fraud Detection demo incl. S3 connections
+ * run the AI Starter Kit (RAG and NL2SQL) demo showcased below as well as the Fraud Detection demo incl. S3 connections
  * show the inner/outer loop for application development/deployment
  * serve models
  * integrate models into the application during development/deployment
@@ -26,7 +26,7 @@ As part of the setup we deploy OpenShift AI, Dev Spaces, Pipelines, MinIO and se
 * Using **Hosted Control Plane**
 * Set up **cluster admin** in ROSA
 
-> This repo contains `setup.sh` to kick off the set-up process via ssh access to the bastion
+> This repo contains `setup.sh` to kick off the set-up process via ssh access to the bastion (be sure to have ssh-agent running)
 
 > Pre-requisites for the setup are:
 - [ ] ssh key with git access ready to copy to bastion
