@@ -77,7 +77,7 @@ source tools/format.sh; eval "$(egrep '\s_{2}\s' setup.sh)"
 ![ai-hackathon-starter](architecture.png)
 
 ## AI Demo Deployment Instructions
-Simply run **./app.sh** to kick off the demo application installation
+After ```./setup.sh``` completes, simply run ```./app.sh``` to kick off the demo application installation
 
 ## Testing The Application
 Once ./app.sh completes successfuly you can [follow these instructions to try the application](testing-the-application-readme)
