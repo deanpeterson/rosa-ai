@@ -13,7 +13,7 @@ This environment will be modified by replacing the worker nodes with instances t
 As part of the setup we deploy OpenShift AI, Dev Spaces, Pipelines, MinIO and setup users into groups with dedicated namespaces. This allows for collaboration in isolated groups such as during a build-a-thon event.
 
 #### The environment is setup to
- * run the AI Starter Kit (RAG and NL2SQL) demo showcased below as well as the Fraud Detection demo incl. S3 connections
+ * run the AI Starter Kit (RAG and NL2SQL) demo showcased below (after running ./setup.sh, you will run ./app.sh for the AI Starter Kit installation) as well as the Fraud Detection demo incl. S3 connections
  * show the inner/outer loop for application development/deployment
  * serve models
  * integrate models into the application during development/deployment
