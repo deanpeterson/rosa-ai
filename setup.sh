@@ -110,6 +110,7 @@ if [[ -n "$step" && "$step" == "7" ]]; then
   __ "Verify dependencies are installed" 5
   oo 9 "oc get DSCInitialization,FeatureTracker -n redhat-ods-operator 2>/dev/null | egrep -i 'DSCInitialization|FeatureTracker' | grep -iv Progressing | wc -l"
   cmd oc get DSCInitialization,FeatureTracker -n redhat-ods-operator
+  cmd oc events dscinitialization.dscinitialization.opendatahub.io/default-dsci
   __ "OpenShift Pipelines" 4
   cmd "oc apply -f configs/pipelines-subscription.yaml"
   oo 1 "oc get ClusterServiceVersion -l operators.coreos.com/openshift-pipelines-operator-rh.openshift-operators -n openshift-operators 2>/dev/null | grep Succeeded | wc -l"
