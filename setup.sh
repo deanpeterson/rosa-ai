@@ -1,33 +1,14 @@
 source tools/format.sh
 step=$1
-if [[ -z "$step" || "$step" == "1" ]]; then 
-  __ "ROSA AI Starter configuration tool" 1
-  __ "Set up ROSA cluster using demo.redhat.com - ROSA Workshop" 2
-  ___ "Wait until the environment has been provisioned."
-
-  __ "Step 1 - Connect to Bastion" 3
-  __ "Collecting initial provisioning data for automation:" 4
-  _? "What is the bastion ssh host for your demo environment" BASTION $BASTION
-  __ "Setup bastion connection and continue there" 4
-  __ "Provide bastion ssh password to copy keys when prompted" 5
-  ssh-copy-id -o StrictHostKeyChecking=accept-new rosa@$BASTION
-  __ "Connect to bastion via ssh using -A flag" 4
-  # Checkout dependencies
-  gitRepo='ssh://git@gitlab.consulting.redhat.com:2222/ai-odyssey-2025/assist4real/demo-project.git'
-  gitRepo='ssh://git@github.com/purefield-demo-team/ai-odyssey.git'
-  ssh -A rosa@$BASTION "GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone --recurse-submodules $gitRepo ai-starter"
-  ssh -A rosa@$BASTION "cd ai-starter && pwd && ./setup.sh 2"
-  exit 0
-fi
 clusterInfo=$(rosa list clusters -o json)
 if [[ -n "$step" && "$step" == "2" ]]; then 
   __ "Step 2 - Setup ROSA" 3
   API_URL=$(echo "$clusterInfo" | jq -r '.[].api.url')
   __ "Create ROSA admin account - should exist" 4
-  cmd "rosa create admin --cluster rosa-$GUID"
   __ "Collecting additional provisioning data for automation:" 4
   _? "What is the rosa admin password" API_PWD
   _? "What is the rosa api url" API_URL "" $API_URL
+  _? "What is the rosa cluster name" CLUSTER_NAME "" $CLUSTER_NAME
   cmd oc login -u cluster-admin -p "$API_PWD" "$API_URL"
   __ "Setup scratch folder for artifacts" 4
   cmd "mkdir -p scratch/"
@@ -39,32 +20,32 @@ if [[ -n "$step" && "$step" == "3" ]]; then
   _? "What is the number of minimum replicas" minReplicas 1
   _? "What is the number of maximum replicas" maxReplicas 2
   __ "Add $instanceType machine pool with $minReplicas <= n <= $maxReplicas nodes" 4
-  cmd "rosa create machinepool -c rosa-$GUID --name=ai-worker --min-replicas=$minReplicas --max-replicas=$maxReplicas --instance-type=$instanceType --enable-autoscaling --labels nodes=ai"
+  cmd "rosa create machinepool -c $CLUSTER_NAME --name=ai-worker --min-replicas=$minReplicas --max-replicas=$maxReplicas --instance-type=$instanceType --enable-autoscaling --labels nodes=ai"
   step=4
 fi
 if [[ -n "$step" && "$step" == "4" ]]; then 
   # todo: while recommended version, upgrade
   __ "Step 4 - Upgrade ROSA" 3
   currentRosaVersion=$(echo "$clusterInfo" | jq -r '.[].openshift_version')
-  nextRosaVersion=$(rosa list upgrades -c rosa-$GUID -o json | jq -r '.[0]')
+  nextRosaVersion=$(rosa list upgrades -c $CLUSTER_NAME -o json | jq -r '.[0]')
   __ "Current     ROSA version: $currentRosaVersion" 5
   __ "Recommended ROSA version: $nextRosaVersion" 5
   _? "What version of ROSA" rosaVersion $nextRosaVersion
-  cmd rosa upgrade cluster -c rosa-$GUID --control-plane --schedule-date $(date -d "+5 minutes 30 seconds" +"%Y-%m-%d") --schedule-time $(date -d "+6 minutes" +"%H:%M") -m auto -y --version $rosaVersion 
+  cmd rosa upgrade cluster -c $CLUSTER_NAME --control-plane --schedule-date $(date -d "+5 minutes 30 seconds" +"%Y-%m-%d") --schedule-time $(date -d "+6 minutes" +"%H:%M") -m auto -y --version $rosaVersion 
   __ "Wait for upgrade to finish" 4
-  oo 1 "echo \$(( 1 - \$(rosa list upgrades -c rosa-$GUID | grep recommended | grep '$rosaVersion' | wc -l) ))"
+  oo 1 "echo \$(( 1 - \$(rosa list upgrades -c $CLUSTER_NAME | grep recommended | grep '$rosaVersion' | wc -l) ))"
   step=5
 fi
 if [[ -n "$step" && "$step" == "5" ]]; then 
   __ "Step 5 - Finish Openshift Setup" 3
   __ "Wait for machinepool to be ready" 4
   export query='.[] | select(.id=="ai-worker") .status.current_replicas'
-  oo $(rosa list machinepools -c rosa-$GUID -o json | jq '.[] | select(.id=="ai-worker") .autoscaling.min_replica') "rosa list machinepools -c rosa-$GUID -o json | jq '$query'"
+  oo $(rosa list machinepools -c $CLUSTER_NAME -o json | jq '.[] | select(.id=="ai-worker") .autoscaling.min_replica') "rosa list machinepools -c $CLUSTER_NAME -o json | jq '$query'"
   unset query
   __ "Switch to AI machine pool" 4
-  cmd "rosa update machinepool -c rosa-$GUID --replicas 2 workers"
+  cmd "rosa update machinepool -c $CLUSTER_NAME --replicas 2 workers"
   __ "Verify machine pools" 4
-  cmd "rosa list machinepools -c rosa-$GUID"
+  cmd "rosa list machinepools -c $CLUSTER_NAME"
   step=6
 fi
 if [[ -n "$step" && "$step" == "6" ]]; then 
